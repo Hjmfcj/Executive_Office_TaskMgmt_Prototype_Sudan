@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مؤسسة الميثاق التنفيذية — نظام إدارة مهام المكتب التنفيذي</title>
+<style>
+:root{
+  --navy:#0f2540; --navy2:#173a5e; --gold:#c9a227; --teal:#0e7c86;
+  --bg:#f4f6f9; --card:#ffffff; --border:#e3e7ee; --text:#1f2937; --muted:#6b7280;
+  --danger:#dc2626; --warn:#d97706; --ok:#16a34a; --info:#2563eb;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);}
+[dir="ltr"]{direction:ltr;}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:250px;background:var(--navy);color:#fff;flex-shrink:0;display:flex;flex-direction:column;}
+.sidebar .brand{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.12);}
+.sidebar .brand .name{font-weight:700;font-size:15px;}
+.sidebar .brand .sub{font-size:11px;opacity:.65;margin-top:3px;}
+.nav{flex:1;padding:10px 0;overflow-y:auto;}
+.nav a{display:flex;align-items:center;gap:10px;padding:11px 18px;color:#cbd5e1;text-decoration:none;font-size:13.5px;cursor:pointer;border-inline-start:3px solid transparent;}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff;}
+.nav a.active{background:rgba(255,255,255,.1);color:#fff;border-inline-start-color:var(--gold);font-weight:600;}
+.nav a .ic{width:18px;text-align:center;}
+.sidebar .roleinfo{padding:14px 18px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;opacity:.7;}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 22px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20;}
+.topbar h1{font-size:16px;margin:0;flex:1;}
+.topbar .ctrl{display:flex;align-items:center;gap:10px;}
+select, button, input{font-family:inherit;}
+.roleSelect{padding:7px 10px;border-radius:8px;border:1px solid var(--border);font-size:12.5px;background:#fff;}
+.langbtn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:12.5px;cursor:pointer;font-weight:600;}
+.bellwrap{position:relative;}
+.bell{width:36px;height:36px;border-radius:50%;background:#f1f3f7;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative;}
+.bell .dot{position:absolute;top:4px;inset-inline-end:4px;width:8px;height:8px;background:var(--danger);border-radius:50%;}
+.notifpanel{position:absolute;top:44px;inset-inline-end:0;width:320px;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);display:none;max-height:400px;overflow-y:auto;z-index:50;}
+.notifpanel.show{display:block;}
+.notifpanel .nh{padding:12px 14px;font-weight:700;font-size:13px;border-bottom:1px solid var(--border);}
+.notifitem{padding:11px 14px;border-bottom:1px solid #f0f1f4;font-size:12.5px;}
+.notifitem b{display:block;font-size:12.5px;margin-bottom:3px;}
+.notifitem .t{color:var(--muted);font-size:11px;}
+.notifitem.unread{background:#f7faff;}
+.content{padding:22px;flex:1;overflow-y:auto;}
+.page{display:none;}
+.page.active{display:block;}
+.pagehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.pagehead h2{margin:0;font-size:19px;}
+.pagehead .desc{font-size:12.5px;color:var(--muted);margin-top:4px;}
+.btn{padding:9px 16px;border-radius:8px;border:none;background:var(--navy);color:#fff;font-size:13px;cursor:pointer;font-weight:600;}
+.btn.gold{background:var(--gold);color:#1f2937;}
+.btn.outline{background:#fff;border:1px solid var(--border);color:var(--text);}
+.btn.sm{padding:6px 11px;font-size:11.5px;}
+.btn.ok{background:var(--ok);color:#fff;}
+.btn.danger{background:var(--danger);color:#fff;}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.kpi .num{font-size:26px;font-weight:800;margin:4px 0;}
+.kpi .lbl{font-size:12px;color:var(--muted);}
+.kpi .trend{font-size:11px;}
+.kpi .trend.up{color:var(--ok);} .kpi .trend.down{color:var(--danger);}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:16px;}
+@media(max-width:900px){.grid2{grid-template-columns:1fr;}}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}
+th,td{padding:10px 12px;text-align:start;font-size:12.5px;border-bottom:1px solid #eef0f4;}
+th{background:#f8f9fb;font-weight:700;color:#475569;font-size:11.5px;}
+tr:hover td{background:#fafbfd;}
+.badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;}
+.badge.new{background:#e0e7ff;color:#3730a3;}
+.badge.progress{background:#fef3c7;color:#92400e;}
+.badge.hold{background:#f3f4f6;color:#4b5563;}
+.badge.done{background:#dcfce7;color:#166534;}
+.badge.cancel{background:#fee2e2;color:#991b1b;}
+.badge.pending{background:#fef3c7;color:#92400e;}
+.badge.approved{background:#dcfce7;color:#166534;}
+.badge.rejected{background:#fee2e2;color:#991b1b;}
+.quad{display:inline-block;width:9px;height:9px;border-radius:2px;margin-inline-end:5px;}
+.q1{background:var(--danger);} .q2{background:var(--warn);} .q3{background:var(--info);} .q4{background:#9ca3af;}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.toolbar input,.toolbar select{padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;}
+.viewtoggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.viewtoggle button{border:none;background:#fff;padding:7px 14px;font-size:12px;cursor:pointer;}
+.viewtoggle button.active{background:var(--navy);color:#fff;}
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.kcol{background:#eef1f5;border-radius:10px;padding:10px;min-height:120px;}
+.kcol h4{font-size:12.5px;margin:2px 6px 10px;display:flex;justify-content:space-between;}
+.kcard{background:#fff;border-radius:8px;padding:10px 11px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.06);font-size:12px;cursor:pointer;}
+.kcard .ti{font-weight:700;margin-bottom:4px;}
+.kcard .meta{color:var(--muted);font-size:11px;display:flex;justify-content:space-between;margin-top:6px;}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:100;}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-radius:14px;padding:22px;width:520px;max-width:92vw;max-height:88vh;overflow-y:auto;}
+.modal h3{margin-top:0;font-size:16px;}
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:#374151;}
+.field input,.field select,.field textarea{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;}
+.field textarea{min-height:70px;resize:vertical;}
+.modalfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+.timeline{border-inline-start:2px solid var(--border);margin-inline-start:8px;padding-inline-start:18px;}
+.tlitem{position:relative;padding-bottom:18px;}
+.tlitem::before{content:"";position:absolute;inset-inline-start:-24px;top:3px;width:11px;height:11px;border-radius:50%;background:var(--teal);}
+.tlitem .h{font-weight:700;font-size:12.5px;}
+.tlitem .d{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.attachment{display:inline-flex;align-items:center;gap:6px;background:#f1f3f7;padding:5px 10px;border-radius:7px;font-size:11.5px;margin-inline-end:6px;}
+.section-title{font-size:14px;font-weight:700;margin:18px 0 10px;}
+.pill{padding:2px 9px;border-radius:999px;background:#f1f3f7;font-size:11px;}
+.rbacmatrix td.yes{color:var(--ok);font-weight:700;text-align:center;}
+.rbacmatrix td.no{color:#d1d5db;text-align:center;}
+.agenda-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #eef0f4;}
+.agenda-time{width:70px;font-weight:700;font-size:13px;color:var(--navy);flex-shrink:0;}
+.agenda-body{flex:1;}
+.agenda-actions{display:flex;gap:6px;}
+.searchbox{display:flex;gap:8px;margin-bottom:14px;}
+.searchbox input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;}
+.rescat{margin-bottom:18px;}
+.rescat h4{font-size:13px;margin-bottom:8px;color:var(--navy);}
+.reslist .resitem{padding:9px 0;border-bottom:1px solid #f0f1f4;font-size:12.5px;display:flex;justify-content:space-between;}
+.tabs2{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);}
+.tabs2 button{background:none;border:none;padding:10px 14px;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;}
+.tabs2 button.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:700;}
+.tabpage{display:none;} .tabpage.active{display:block;}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr;} .kanban{grid-template-columns:1fr 1fr;}}
+
+.repfilters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.svgbar-wrap{display:flex;align-items:flex-end;gap:14px;height:190px;padding:10px 4px 0;}
+.svgbar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.svgbar{width:100%;max-width:52px;border-radius:6px 6px 0 0;background:var(--navy2);transition:height .3s;cursor:pointer;position:relative;}
+.svgbar:hover{opacity:.85;}
+.svgbar .val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;white-space:nowrap;}
+.svgbar-lbl{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;max-width:70px;}
+.donutwrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.donut{width:150px;height:150px;border-radius:50%;flex-shrink:0;}
+.donutlegend{flex:1;min-width:160px;}
+.legrow{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12.5px;cursor:pointer;border-radius:6px;padding-inline-start:6px;}
+.legrow:hover{background:#f4f6f9;}
+.legrow.selected{background:#eef2ff;font-weight:700;}
+.legdot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.trendsvg{width:100%;height:120px;}
+.trendpt{cursor:pointer;}
+.trendpt:hover{r:6;}
+.drilldown{margin-top:16px;}
+.drilldown table{margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="name" data-i18n="brandName">مؤسسة الميثاق التنفيذية</div>
+      <div class="sub" data-i18n="brandSub">نظام إدارة مهام المكتب التنفيذي</div>
+    </div>
+    <nav class="nav" id="navList"></nav>
+    <div class="roleinfo"><span data-i18n="loggedAs">تسجيل الدخول بصفة:</span> <b id="roleLabel"></b></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle"></h1>
+      <div class="ctrl">
+        <select class="roleSelect" id="roleSelect" onchange="switchRole(this.value)"></select>
+        <button class="langbtn" onclick="toggleLang()" id="langBtnLabel">EN</button>
+        <div class="bellwrap">
+          <div class="bell" onclick="toggleNotif()">🔔<span class="dot" id="notifDot"></span></div>
+          <div class="notifpanel" id="notifPanel">
+            <div class="nh" data-i18n="notifCenter">مركز الإشعارات</div>
+            <div id="notifList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="taskModalBg">
+  <div class="modal">
+    <h3 data-i18n="newTask">إنشاء مهمة جديدة</h3>
+    <div class="field"><label data-i18n="taskTitle">عنوان المهمة</label><input id="tmTitle" placeholder=""></div>
+    <div class="field"><label data-i18n="taskDesc">الوصف التفصيلي</label><textarea id="tmDesc"></textarea></div>
+    <div class="field"><label data-i18n="dept">الإدارة المعنية</label>
+      <select id="tmDept"><option>مكتب المدير العام</option><option>إدارة الموارد البشرية</option><option>إدارة الشؤون المالية</option><option>إدارة العلاقات الخارجية</option></select>
+    </div>
+    <div class="field"><label data-i18n="priority">الأولوية</label>
+      <select id="tmPriority"><option value="q1" data-i18n="q1">مهم وعاجل</option><option value="q2" data-i18n="q2">مهم وغير عاجل</option><option value="q3" data-i18n="q3">غير مهم وعاجل</option><option value="q4" data-i18n="q4">غير مهم وغير عاجل</option></select>
+    </div>
+    <div class="field"><label data-i18n="assignTo">إسناد إلى</label>
+      <select id="tmAssign"></select>
+    </div>
+    <div class="field"><label data-i18n="dueDate">تاريخ الانتهاء المستهدف</label><input type="date" id="tmDue"></div>
+    <div class="modalfoot">
+      <button class="btn outline" onclick="closeModal('taskModalBg')" data-i18n="cancel">إلغاء</button>
+      <button class="btn" onclick="createTask()" data-i18n="save">حفظ المهمة</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="corrModalBg">
+  <div class="modal">
+    <h3 data-i18n="newCorr">مراسلة جديدة من قالب</h3>
+    <div class="field"><label data-i18n="template">القالب</label>
+      <select id="cmTemplate"><option data-i18n="tpl1">خطاب رسمي</option><option data-i18n="tpl2">تعميم إداري</option><option data-i18n="tpl3">قرار إداري</option><option data-i18n="tpl4">مذكرة داخلية</option></select>
+    </div>
+    <div class="field"><label data-i18n="subject">الموضوع</label><input id="cmSubject"></div>
+    <div class="field"><label data-i18n="toDept">موجهة إلى</label>
+      <select id="cmTo"><option>مكتب المدير العام</option><option>إدارة الموارد البشرية</option><option>إدارة الشؤون المالية</option><option>إدارة العلاقات الخارجية</option></select>
+    </div>
+    <div class="field"><label data-i18n="body">نص المراسلة</label><textarea id="cmBody"></textarea></div>
+    <div class="modalfoot">
+      <button class="btn outline" onclick="closeModal('corrModalBg')" data-i18n="cancel">إلغاء</button>
+      <button class="btn" onclick="createCorr()" data-i18n="send">إرسال</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="userModalBg">
+  <div class="modal">
+    <h3 data-i18n="newUser">إضافة مستخدم جديد</h3>
+    <div class="field"><label data-i18n="fullName">الاسم الكامل</label><input id="umName"></div>
+    <div class="field"><label data-i18n="email">البريد الإلكتروني المؤسسي</label><input id="umEmail" placeholder="name@al-mithaq.example"></div>
+    <div class="field"><label data-i18n="roleField">الدور الوظيفي</label>
+      <select id="umRole"><option value="dg" data-i18n="roleDG">المدير العام</option><option value="mgr" data-i18n="roleMgr">مدير إدارة</option><option value="emp" data-i18n="roleEmp">موظف</option><option value="admin" data-i18n="roleAdmin">مسؤول نظام</option></select>
+    </div>
+    <div class="field"><label data-i18n="dept">الإدارة</label>
+      <select id="umDept"><option>مكتب المدير العام</option><option>إدارة الموارد البشرية</option><option>إدارة الشؤون المالية</option><option>إدارة العلاقات الخارجية</option></select>
+    </div>
+    <div class="modalfoot">
+      <button class="btn outline" onclick="closeModal('userModalBg')" data-i18n="cancel">إلغاء</button>
+      <button class="btn" onclick="createUser()" data-i18n="save">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ i18n ============ */
+const I18N = {
+  brandName:{ar:"مؤسسة الميثاق التنفيذية",en:"Al-Mithaq Executive Office"},
+  brandSub:{ar:"نظام إدارة مهام المكتب التنفيذي",en:"Executive Office Task Management System"},
+  loggedAs:{ar:"تسجيل الدخول بصفة:",en:"Logged in as:"},
+  notifCenter:{ar:"مركز الإشعارات",en:"Notification Center"},
+  nav_home:{ar:"لوحة المتابعة الرئيسية",en:"Home Dashboard"},
+  nav_tasks:{ar:"إدارة المهام",en:"Task Management"},
+  nav_corr:{ar:"المراسلات الداخلية",en:"Internal Correspondence"},
+  nav_notif:{ar:"الإشعارات",en:"Notifications"},
+  nav_archive:{ar:"الأرشيف والبحث المتقدم",en:"Archive & Advanced Search"},
+  nav_reports:{ar:"التقارير ولوحات المتابعة",en:"Reports & Dashboards"},
+  nav_agenda:{ar:"الأجندة اليومية للمدير العام",en:"DG Daily Agenda"},
+  nav_admin:{ar:"إعدادات المسؤول",en:"Admin Panel"},
+  roleDG:{ar:"المدير العام",en:"Director General"},
+  roleMgr:{ar:"مدير إدارة",en:"Department Manager"},
+  roleEmp:{ar:"موظف",en:"Employee"},
+  roleAdmin:{ar:"مسؤول نظام",en:"System Administrator"},
+  newTask:{ar:"إنشاء مهمة جديدة",en:"Create New Task"},
+  taskTitle:{ar:"عنوان المهمة",en:"Task Title"},
+  taskDesc:{ar:"الوصف التفصيلي",en:"Detailed Description"},
+  dept:{ar:"الإدارة المعنية",en:"Department"},
+  priority:{ar:"الأولوية",en:"Priority"},
+  q1:{ar:"مهم وعاجل",en:"Important & Urgent"},
+  q2:{ar:"مهم وغير عاجل",en:"Important & Not Urgent"},
+  q3:{ar:"غير مهم وعاجل",en:"Not Important & Urgent"},
+  q4:{ar:"غير مهم وغير عاجل",en:"Not Important & Not Urgent"},
+  assignTo:{ar:"إسناد إلى",en:"Assign To"},
+  dueDate:{ar:"تاريخ الانتهاء المستهدف",en:"Target Due Date"},
+  cancel:{ar:"إلغاء",en:"Cancel"},
+  save:{ar:"حفظ المهمة",en:"Save Task"},
+  newCorr:{ar:"مراسلة جديدة من قالب",en:"New Correspondence From Template"},
+  template:{ar:"القالب",en:"Template"},
+  tpl1:{ar:"خطاب رسمي",en:"Official Letter"},
+  tpl2:{ar:"تعميم إداري",en:"Administrative Circular"},
+  tpl3:{ar:"قرار إداري",en:"Administrative Decision"},
+  tpl4:{ar:"مذكرة داخلية",en:"Internal Memo"},
+  subject:{ar:"الموضوع",en:"Subject"},
+  toDept:{ar:"موجهة إلى",en:"Addressed To"},
+  body:{ar:"نص المراسلة",en:"Correspondence Body"},
+  send:{ar:"إرسال",en:"Send"},
+  newUser:{ar:"إضافة مستخدم جديد",en:"Add New User"},
+  fullName:{ar:"الاسم الكامل",en:"Full Name"},
+  email:{ar:"البريد الإلكتروني المؤسسي",en:"Corporate Email"},
+  roleField:{ar:"الدور الوظيفي",en:"Role"},
+  home_title:{ar:"لوحة المتابعة الرئيسية",en:"Home Dashboard"},
+  home_desc:{ar:"نظرة عامة لحظية على المهام والمراسلات حسب دور المستخدم",en:"Live overview of tasks & correspondence, tailored to your role"},
+  kpi_open:{ar:"المهام المفتوحة",en:"Open Tasks"},
+  kpi_overdue:{ar:"المهام المتأخرة",en:"Overdue Tasks"},
+  kpi_corr:{ar:"مراسلات قيد الاعتماد",en:"Correspondence Pending Approval"},
+  kpi_rate:{ar:"نسبة الإنجاز هذا الشهر",en:"Completion Rate This Month"},
+  recentTasks:{ar:"أحدث المهام",en:"Recent Tasks"},
+  recentCorr:{ar:"أحدث المراسلات",en:"Recent Correspondence"},
+  tasks_title:{ar:"إدارة المهام",en:"Task Management"},
+  tasks_desc:{ar:"دورة حياة كاملة للمهمة من الإنشاء حتى الإغلاق",en:"Full task lifecycle, creation to closure"},
+  listView:{ar:"عرض قائمة",en:"List View"},
+  kanbanView:{ar:"عرض بطاقات",en:"Kanban View"},
+  searchPh:{ar:"بحث بالاسم أو الوصف...",en:"Search by name or description..."},
+  allStatus:{ar:"كل الحالات",en:"All Statuses"},
+  st_new:{ar:"جديد",en:"New"},
+  st_progress:{ar:"قيد التنفيذ",en:"In Progress"},
+  st_hold:{ar:"معلّقة",en:"On Hold"},
+  st_done:{ar:"مكتملة",en:"Completed"},
+  st_cancel:{ar:"ملغاة",en:"Cancelled"},
+  col_title:{ar:"العنوان",en:"Title"},
+  col_dept:{ar:"الإدارة",en:"Department"},
+  col_priority:{ar:"الأولوية",en:"Priority"},
+  col_assignee:{ar:"المسند إليه",en:"Assignee"},
+  col_due:{ar:"تاريخ الاستحقاق",en:"Due Date"},
+  col_status:{ar:"الحالة",en:"Status"},
+  newTaskBtn:{ar:"+ مهمة جديدة",en:"+ New Task"},
+  corr_title:{ar:"نظام المراسلات الداخلية",en:"Internal Correspondence System"},
+  corr_desc:{ar:"إنشاء وتوجيه واعتماد المراسلات وفق التسلسل الإداري",en:"Create, route, and approve correspondence per the administrative hierarchy"},
+  newCorrBtn:{ar:"+ مراسلة جديدة",en:"+ New Correspondence"},
+  col_subject:{ar:"الموضوع",en:"Subject"},
+  col_from:{ar:"من",en:"From"},
+  col_to:{ar:"إلى",en:"To"},
+  approve:{ar:"اعتماد",en:"Approve"},
+  reject:{ar:"رفض",en:"Reject"},
+  viewTimeline:{ar:"عرض المسار الزمني",en:"View Timeline"},
+  notif_title:{ar:"مركز الإشعارات",en:"Notification Center"},
+  notif_desc:{ar:"كل التنبيهات الفورية والتذكيرات الخاصة بحسابك",en:"All instant alerts and reminders for your account"},
+  markAllRead:{ar:"تعليم الكل كمقروء",en:"Mark all as read"},
+  prefs:{ar:"تفضيلات الإشعارات",en:"Notification Preferences"},
+  emailChannel:{ar:"إشعار بالبريد الإلكتروني",en:"Email notifications"},
+  inappChannel:{ar:"إشعار داخل النظام",en:"In-app notifications"},
+  reminder24:{ar:"تذكير قبل 24 ساعة من الموعد النهائي",en:"Reminder 24h before deadline"},
+  reminder3:{ar:"تذكير قبل 3 ساعات من الموعد النهائي",en:"Reminder 3h before deadline"},
+  archive_title:{ar:"الأرشيف والبحث المتقدم",en:"Archive & Advanced Search"},
+  archive_desc:{ar:"بحث موحد يغطي المهام والمراسلات والمستندات",en:"Unified search across tasks, correspondence, and documents"},
+  filterByDate:{ar:"التاريخ",en:"Date"},
+  filterByDept:{ar:"الإدارة",en:"Department"},
+  filterByManager:{ar:"المدير المسؤول",en:"Responsible Manager"},
+  search_go:{ar:"بحث",en:"Search"},
+  results:{ar:"النتائج",en:"Results"},
+  reports_title:{ar:"التقارير ولوحات المتابعة",en:"Reports & Dashboards"},
+  reports_desc:{ar:"مؤشرات أداء تنفيذية محدثة بشكل شبه لحظي",en:"Near real-time executive performance indicators"},
+  exportPdf:{ar:"تصدير PDF",en:"Export PDF"},
+  exportExcel:{ar:"تصدير Excel",en:"Export Excel"},
+  tasksByDept:{ar:"المهام حسب الإدارة",en:"Tasks by Department"},
+  tasksByStatus:{ar:"المهام حسب الحالة",en:"Tasks by Status"},
+  completionTrend:{ar:"معدل الإنجاز خلال آخر 6 أسابيع",en:"Completion Rate — Last 6 Weeks"},
+  avgCompletion:{ar:"متوسط زمن إنجاز المهمة",en:"Average Task Completion Time"},
+  days:{ar:"أيام",en:"days"},
+  agenda_title:{ar:"الأجندة اليومية للمدير العام",en:"Director General's Daily Agenda"},
+  agenda_desc:{ar:"جدولة الأحداث والزيارات والمراسم لليوم — قابلة للاعتماد والتعديل مباشرة",en:"Today's events, visits and ceremonies — approve or edit directly"},
+  edit:{ar:"تعديل",en:"Edit"},
+  cancelEvent:{ar:"إلغاء",en:"Cancel"},
+  confirm:{ar:"اعتماد",en:"Confirm"},
+  admin_title:{ar:"إعدادات المسؤول",en:"Admin Settings"},
+  admin_desc:{ar:"إدارة المستخدمين والأدوار والصلاحيات وقوالب المراسلات",en:"Manage users, roles, permissions, and correspondence templates"},
+  tab_users:{ar:"المستخدمون",en:"Users"},
+  tab_roles:{ar:"الأدوار والصلاحيات",en:"Roles & Permissions"},
+  tab_templates:{ar:"قوالب المراسلات",en:"Correspondence Templates"},
+  tab_audit:{ar:"سجل التدقيق",en:"Audit Log"},
+  addUser:{ar:"+ إضافة مستخدم",en:"+ Add User"},
+  col_name:{ar:"الاسم",en:"Name"},
+  col_email:{ar:"البريد الإلكتروني",en:"Email"},
+  col_role:{ar:"الدور",en:"Role"},
+  col_active:{ar:"نشط",en:"Active"},
+  module:{ar:"الوحدة",en:"Module"},
+  perm_dg:{ar:"المدير العام",en:"Director General"},
+  perm_mgr:{ar:"مدير إدارة",en:"Dept Manager"},
+  perm_emp:{ar:"موظف",en:"Employee"},
+  perm_admin:{ar:"مسؤول نظام",en:"System Admin"},
+  col_action:{ar:"الإجراء",en:"Action"},
+  col_time:{ar:"التوقيت",en:"Timestamp"},
+};
+let currentLang = "ar";
+function t(key){ return I18N[key] ? I18N[key][currentLang] : key; }
+function applyI18n(){
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    if(I18N[k]) el.textContent = I18N[k][currentLang];
+  });
+  document.getElementById("langBtnLabel").textContent = currentLang === "ar" ? "EN" : "AR";
+}
+function toggleLang(){ currentLang = currentLang === "ar" ? "en" : "ar"; applyI18n(); renderAll(); }
+
+/* ============ Roles / RBAC ============ */
+const ROLES = {
+  dg:{key:"dg", labelKey:"roleDG", nav:["home","tasks","corr","notif","archive","reports","agenda"]},
+  mgr:{key:"mgr", labelKey:"roleMgr", nav:["home","tasks","corr","notif","archive","reports"]},
+  emp:{key:"emp", labelKey:"roleEmp", nav:["home","tasks","corr","notif","archive"]},
+  admin:{key:"admin", labelKey:"roleAdmin", nav:["home","tasks","corr","notif","archive","reports","admin"]}
+};
+let currentRole = "dg";
+
+const NAV_ITEMS = [
+  {id:"home", icon:"🏠", labelKey:"nav_home"},
+  {id:"tasks", icon:"📋", labelKey:"nav_tasks"},
+  {id:"corr", icon:"✉️", labelKey:"nav_corr"},
+  {id:"notif", icon:"🔔", labelKey:"nav_notif"},
+  {id:"archive", icon:"🔎", labelKey:"nav_archive"},
+  {id:"reports", icon:"📊", labelKey:"nav_reports"},
+  {id:"agenda", icon:"🗓️", labelKey:"nav_agenda"},
+  {id:"admin", icon:"⚙️", labelKey:"nav_admin"}
+];
+
+/* ============ Mock Data ============ */
+const DEPTS = ["مكتب المدير العام","إدارة الموارد البشرية","إدارة الشؤون المالية","إدارة العلاقات الخارجية"];
+const USERS = [
+  {id:1,name:"أحمد الطيب",email:"a.altayeb@al-mithaq.example",role:"dg",dept:"مكتب المدير العام",active:true},
+  {id:2,name:"سارة محمود",email:"s.mahmoud@al-mithaq.example",role:"mgr",dept:"إدارة الموارد البشرية",active:true},
+  {id:3,name:"خالد إبراهيم",email:"k.ibrahim@al-mithaq.example",role:"mgr",dept:"إدارة الشؤون المالية",active:true},
+  {id:4,name:"ريم عبدالله",email:"r.abdalla@al-mithaq.example",role:"emp",dept:"إدارة الموارد البشرية",active:true},
+  {id:5,name:"عمر الفاتح",email:"o.alfateh@al-mithaq.example",role:"emp",dept:"إدارة الشؤون المالية",active:true},
+  {id:6,name:"منى حسن",email:"m.hassan@al-mithaq.example",role:"admin",dept:"مكتب المدير العام",active:true},
+  {id:7,name:"ياسر النور",email:"y.alnour@al-mithaq.example",role:"emp",dept:"إدارة العلاقات الخارجية",active:false}
+];
+let TASKS = [
+  {id:"TSK-101",title:"إعداد تقرير الأداء الشهري",dept:"مكتب المدير العام",priority:"q1",assignee:"ريم عبدالله",due:"2026-09-17",status:"progress"},
+  {id:"TSK-102",title:"مراجعة طلبات التوظيف الجديدة",dept:"إدارة الموارد البشرية",priority:"q2",assignee:"سارة محمود",due:"2026-09-20",status:"new"},
+  {id:"TSK-103",title:"تجهيز مقترح الميزانية التقديرية",dept:"إدارة الشؤون المالية",priority:"q1",assignee:"عمر الفاتح",due:"2026-09-16",status:"progress"},
+  {id:"TSK-104",title:"تنسيق زيارة الوفد الخارجي",dept:"إدارة العلاقات الخارجية",priority:"q1",assignee:"ياسر النور",due:"2026-09-18",status:"hold"},
+  {id:"TSK-105",title:"تحديث سجل الموظفين",dept:"إدارة الموارد البشرية",priority:"q4",assignee:"ريم عبدالله",due:"2026-09-25",status:"new"},
+  {id:"TSK-106",title:"مراجعة العقود السنوية",dept:"إدارة الشؤون المالية",priority:"q2",assignee:"خالد إبراهيم",due:"2026-09-14",status:"done"},
+  {id:"TSK-107",title:"إعداد جدول أعمال الاجتماع الأسبوعي",dept:"مكتب المدير العام",priority:"q1",assignee:"أحمد الطيب",due:"2026-09-16",status:"progress"},
+  {id:"TSK-108",title:"أرشفة مراسلات الربع الثالث",dept:"إدارة العلاقات الخارجية",priority:"q3",assignee:"ياسر النور",due:"2026-09-12",status:"cancel"},
+  {id:"TSK-109",title:"تدريب الموظفين الجدد على النظام",dept:"إدارة الموارد البشرية",priority:"q2",assignee:"سارة محمود",due:"2026-09-22",status:"new"},
+  {id:"TSK-110",title:"متابعة سداد المستحقات",dept:"إدارة الشؤون المالية",priority:"q1",assignee:"عمر الفاتح",due:"2026-09-13",status:"done"}
+];
+let CORR = [
+  {id:"COR-201",subject:"طلب اعتماد خطة التدريب السنوية",from:"إدارة الموارد البشرية",to:"مكتب المدير العام",status:"pending",date:"2026-09-14"},
+  {id:"COR-202",subject:"تعميم بشأن مواعيد الدوام الرسمي",from:"مكتب المدير العام",to:"جميع الإدارات",status:"approved",date:"2026-09-10"},
+  {id:"COR-203",subject:"طلب تخصيص ميزانية إضافية للربع القادم",from:"إدارة الشؤون المالية",to:"مكتب المدير العام",status:"pending",date:"2026-09-15"},
+  {id:"COR-204",subject:"مذكرة تنسيق زيارة الوفد الخارجي",from:"إدارة العلاقات الخارجية",to:"مكتب المدير العام",status:"approved",date:"2026-09-11"},
+  {id:"COR-205",subject:"طلب إجازة إدارية",from:"إدارة الموارد البشرية",to:"مكتب المدير العام",status:"rejected",date:"2026-09-09"}
+];
+const CORR_TIMELINE = {
+  "COR-201":[{h:"تم الإنشاء من قالب خطاب رسمي",d:"2026-09-14 09:10 — سارة محمود"},{h:"تم التوجيه لمكتب المدير العام",d:"2026-09-14 09:12"},{h:"قيد المراجعة",d:"2026-09-14 11:30"}],
+  "COR-202":[{h:"تم الإنشاء",d:"2026-09-10 08:00 — أحمد الطيب"},{h:"تم الاعتماد والتوقيع الإلكتروني",d:"2026-09-10 08:45 — أحمد الطيب"},{h:"تم الأرشفة التلقائية",d:"2026-09-10 08:46"}],
+  "COR-203":[{h:"تم الإنشاء من قالب مذكرة داخلية",d:"2026-09-15 10:05 — خالد إبراهيم"},{h:"تم التوجيه لمكتب المدير العام",d:"2026-09-15 10:07"}],
+  "COR-204":[{h:"تم الإنشاء",d:"2026-09-11 13:00 — ياسر النور"},{h:"تم الاعتماد",d:"2026-09-11 15:20 — أحمد الطيب"}],
+  "COR-205":[{h:"تم الإنشاء",d:"2026-09-09 09:00"},{h:"تم الرفض",d:"2026-09-09 14:10 — أحمد الطيب"}]
+};
+let NOTIFS = [
+  {id:1,title:"تم إسناد مهمة جديدة إليك: إعداد تقرير الأداء الشهري",time:"منذ 20 دقيقة",unread:true},
+  {id:2,title:"مراسلة COR-203 بانتظار اعتمادك",time:"منذ ساعة",unread:true},
+  {id:3,title:"تنبيه: مهمة TSK-108 تجاوزت الموعد النهائي",time:"منذ 3 ساعات",unread:true},
+  {id:4,title:"تم اعتماد مراسلة COR-204",time:"أمس",unread:false},
+  {id:5,title:"تذكير: مهمة TSK-103 مستحقة خلال 24 ساعة",time:"أمس",unread:false}
+];
+const AGENDA = [
+  {time:"08:30",title:"اجتماع تنسيق أسبوعي مع مديري الإدارات",status:"confirmed"},
+  {time:"10:00",title:"استقبال وفد من جهة شريكة خارجية",status:"confirmed"},
+  {time:"12:00",title:"مراجعة تقرير الأداء الشهري مع مكتب المدير العام",status:"pending"},
+  {time:"14:00",title:"مكالمة تنسيقية بخصوص الميزانية التقديرية",status:"confirmed"},
+  {time:"16:00",title:"جلسة اعتماد التعميم الإداري الجديد",status:"pending"}
+];
+const TEMPLATES = ["خطاب رسمي","تعميم إداري","قرار إداري","مذكرة داخلية"];
+const AUDIT = [
+  {user:"منى حسن",action:"تعديل صلاحيات مستخدم (عمر الفاتح)",time:"2026-09-15 09:12"},
+  {user:"أحمد الطيب",action:"اعتماد مراسلة COR-204",time:"2026-09-11 15:20"},
+  {user:"منى حسن",action:"إنشاء حساب مستخدم جديد (ياسر النور)",time:"2026-09-08 10:00"},
+  {user:"سارة محمود",action:"تحديث بيانات مهمة TSK-102",time:"2026-09-14 16:40"}
+];
+
+let currentTaskView = "list";
+
+/* ============ Nav / Role / Page Switching ============ */
+function buildRoleSelect(){
+  const sel = document.getElementById("roleSelect");
+  sel.innerHTML = "";
+  Object.values(ROLES).forEach(r=>{
+    const opt = document.createElement("option");
+    opt.value = r.key; opt.textContent = t(r.labelKey);
+    if(r.key === currentRole) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function switchRole(roleKey){
+  currentRole = roleKey;
+  buildNav();
+  document.getElementById("roleLabel").textContent = t(ROLES[currentRole].labelKey);
+  const allowed = ROLES[currentRole].nav;
+  if(!allowed.includes(currentPage)) navigateTo("home");
+}
+function buildNav(){
+  const nav = document.getElementById("navList");
+  nav.innerHTML = "";
+  const allowed = ROLES[currentRole].nav;
+  NAV_ITEMS.filter(item=>allowed.includes(item.id)).forEach(item=>{
+    const a = document.createElement("a");
+    a.className = "navlink" + (item.id === currentPage ? " active" : "");
+    a.onclick = ()=>navigateTo(item.id);
+    a.innerHTML = `<span class="ic">${item.icon}</span><span data-i18n="${item.labelKey}">${t(item.labelKey)}</span>`;
+    nav.appendChild(a);
+  });
+}
+let currentPage = "home";
+const PAGE_TITLE_KEY = {home:"home_title",tasks:"tasks_title",corr:"corr_title",notif:"notif_title",archive:"archive_title",reports:"reports_title",agenda:"agenda_title",admin:"admin_title"};
+function navigateTo(page){
+  currentPage = page;
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page_"+page).classList.add("active");
+  document.getElementById("pageTitle").textContent = t(PAGE_TITLE_KEY[page]);
+  buildNav();
+  document.getElementById("notifPanel").classList.remove("show");
+  renderPage(page);
+}
+function toggleNotif(){ document.getElementById("notifPanel").classList.toggle("show"); }
+function openModal(id){ document.getElementById(id).classList.add("show"); }
+function closeModal(id){ document.getElementById(id).classList.remove("show"); }
+
+/* ============ Renderers ============ */
+const STATUS_BADGE = {new:"new",progress:"progress",hold:"hold",done:"done",cancel:"cancel"};
+const STATUS_KEY = {new:"st_new",progress:"st_progress",hold:"st_hold",done:"st_done",cancel:"st_cancel"};
+const QUAD_LABELKEY = {q1:"q1",q2:"q2",q3:"q3",q4:"q4"};
+
+function renderHome(){
+  const open = TASKS.filter(x=>x.status!=="done"&&x.status!=="cancel").length;
+  const overdue = TASKS.filter(x=>x.status!=="done"&&x.status!=="cancel"&&new Date(x.due)<new Date("2026-09-15")).length;
+  const pendingCorr = CORR.filter(x=>x.status==="pending").length;
+  const doneCount = TASKS.filter(x=>x.status==="done").length;
+  const rate = Math.round((doneCount/TASKS.length)*100);
+  document.getElementById("page_home").innerHTML = `
+    <div class="pagehead"><div><h2 data-i18n="home_title">${t("home_title")}</h2><div class="desc" data-i18n="home_desc">${t("home_desc")}</div></div></div>
+    <div class="cards">
+      <div class="card kpi"><div class="lbl" data-i18n="kpi_open">${t("kpi_open")}</div><div class="num">${open}</div><div class="trend up">▲ ${t("kpi_open")}</div></div>
+      <div class="card kpi"><div class="lbl" data-i18n="kpi_overdue">${t("kpi_overdue")}</div><div class="num" style="color:var(--danger)">${overdue}</div></div>
+      <div class="card kpi"><div class="lbl" data-i18n="kpi_corr">${t("kpi_corr")}</div><div class="num" style="color:var(--warn)">${pendingCorr}</div></div>
+      <div class="card kpi"><div class="lbl" data-i18n="kpi_rate">${t("kpi_rate")}</div><div class="num" style="color:var(--ok)">${rate}%</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="section-title" data-i18n="recentTasks">${t("recentTasks")}</div>
+        <table><thead><tr><th data-i18n="col_title">${t("col_title")}</th><th data-i18n="col_status">${t("col_status")}</th><th data-i18n="col_due">${t("col_due")}</th></tr></thead>
+        <tbody>${TASKS.slice(0,5).map(x=>`<tr><td>${x.title}</td><td><span class="badge ${STATUS_BADGE[x.status]}">${t(STATUS_KEY[x.status])}</span></td><td>${x.due}</td></tr>`).join("")}</tbody></table>
+      </div>
+      <div class="card">
+        <div class="section-title" data-i18n="recentCorr">${t("recentCorr")}</div>
+        ${CORR.slice(0,5).map(x=>`<div style="padding:9px 0;border-bottom:1px solid #f0f1f4;font-size:12.5px;">${x.subject}<br><span class="badge ${x.status}">${x.status==='pending'?t('st_new'):(x.status==='approved'?t('approve'):t('reject'))}</span></div>`).join("")}
+      </div>
+    </div>`;
+}
+
+function renderTasksList(){
+  return `<table><thead><tr><th>${t("col_title")}</th><th>${t("col_dept")}</th><th>${t("col_priority")}</th><th>${t("col_assignee")}</th><th>${t("col_due")}</th><th>${t("col_status")}</th></tr></thead>
+  <tbody>${TASKS.map(x=>`<tr><td>${x.title}</td><td>${x.dept}</td><td><span class="quad ${x.priority}"></span>${t(QUAD_LABELKEY[x.priority])}</td><td>${x.assignee}</td><td>${x.due}</td><td><span class="badge ${STATUS_BADGE[x.status]}">${t(STATUS_KEY[x.status])}</span></td></tr>`).join("")}</tbody></table>`;
+}
+function renderTasksKanban(){
+  const cols = ["new","progress","hold","done"];
+  return `<div class="kanban">${cols.map(c=>{
+    const items = TASKS.filter(x=>x.status===c);
+    return `<div class="kcol"><h4>${t(STATUS_KEY[c])} <span class="pill">${items.length}</span></h4>${items.map(x=>`<div class="kcard"><div class="ti">${x.title}</div><div>${x.dept}</div><div class="meta"><span><span class="quad ${x.priority}"></span>${x.assignee}</span><span>${x.due}</span></div></div>`).join("")}</div>`;
+  }).join("")}</div>`;
+}
+function renderTasks(){
+  document.getElementById("page_tasks").innerHTML = `
+    <div class="pagehead"><div><h2>${t("tasks_title")}</h2><div class="desc">${t("tasks_desc")}</div></div>
+      <button class="btn gold" onclick="openModal('taskModalBg')">${t("newTaskBtn")}</button></div>
+    <div class="toolbar">
+      <input placeholder="${t('searchPh')}" oninput="filterTasks(this.value)" style="min-width:220px;">
+      <select id="taskStatusFilter" onchange="renderTaskBody()"><option value="">${t("allStatus")}</option>
+        <option value="new">${t("st_new")}</option><option value="progress">${t("st_progress")}</option><option value="hold">${t("st_hold")}</option><option value="done">${t("st_done")}</option><option value="cancel">${t("st_cancel")}</option></select>
+      <div class="viewtoggle">
+        <button class="${currentTaskView==='list'?'active':''}" onclick="currentTaskView='list';renderTaskBody()">${t("listView")}</button>
+        <button class="${currentTaskView==='kanban'?'active':''}" onclick="currentTaskView='kanban';renderTaskBody()">${t("kanbanView")}</button>
+      </div>
+    </div>
+    <div id="taskBody"></div>`;
+  renderTaskBody();
+}
+let taskSearchTerm = "";
+function filterTasks(v){ taskSearchTerm = v.toLowerCase(); renderTaskBody(); }
+function renderTaskBody(){
+  const statusF = document.getElementById("taskStatusFilter") ? document.getElementById("taskStatusFilter").value : "";
+  const filtered = TASKS.filter(x=> (!statusF || x.status===statusF) && (!taskSearchTerm || x.title.toLowerCase().includes(taskSearchTerm)) );
+  const backup = TASKS; TASKS = filtered;
+  document.getElementById("taskBody").innerHTML = currentTaskView === "list" ? renderTasksList() : renderTasksKanban();
+  TASKS = backup;
+}
+function createTask(){
+  const title = document.getElementById("tmTitle").value || "(بدون عنوان)";
+  const dept = document.getElementById("tmDept").value;
+  const priority = document.getElementById("tmPriority").value;
+  const assignee = document.getElementById("tmAssign").value;
+  const due = document.getElementById("tmDue").value || "2026-09-20";
+  const id = "TSK-" + (100 + TASKS.length + 1);
+  TASKS.unshift({id, title, dept, priority, assignee, due, status:"new"});
+  closeModal("taskModalBg");
+  document.getElementById("tmTitle").value=""; document.getElementById("tmDesc").value="";
+  renderTasks();
+}
+function populateAssigneeSelect(){
+  const sel = document.getElementById("tmAssign");
+  if(!sel) return;
+  sel.innerHTML = USERS.filter(u=>u.active).map(u=>`<option>${u.name}</option>`).join("");
+}
+
+function renderCorr(){
+  document.getElementById("page_corr").innerHTML = `
+    <div class="pagehead"><div><h2>${t("corr_title")}</h2><div class="desc">${t("corr_desc")}</div></div>
+      <button class="btn gold" onclick="openModal('corrModalBg')">${t("newCorrBtn")}</button></div>
+    <table><thead><tr><th>${t("col_subject")}</th><th>${t("col_from")}</th><th>${t("col_to")}</th><th>${t("col_status")}</th><th></th></tr></thead>
+    <tbody>${CORR.map(x=>`<tr><td>${x.subject}</td><td>${x.from}</td><td>${x.to}</td><td><span class="badge ${x.status}">${x.status==='pending'?t('st_new'):(x.status==='approved'?t('approve'):t('reject'))}</span></td>
+      <td style="white-space:nowrap;">
+        ${x.status==='pending' ? `<button class="btn sm ok" onclick="setCorrStatus('${x.id}','approved')">${t('approve')}</button> <button class="btn sm danger" onclick="setCorrStatus('${x.id}','rejected')">${t('reject')}</button>` : ""}
+        <button class="btn sm outline" onclick="showCorrTimeline('${x.id}')">${t('viewTimeline')}</button>
+      </td></tr>${activeTimelineId===x.id ? `<tr><td colspan="5"><div class="timeline">${(CORR_TIMELINE[x.id]||[]).map(tl=>`<div class="tlitem"><div class="h">${tl.h}</div><div class="d">${tl.d}</div></div>`).join("")}</div></td></tr>` : ""}`).join("")}</tbody></table>`;
+}
+let activeTimelineId = null;
+function showCorrTimeline(id){ activeTimelineId = activeTimelineId === id ? null : id; renderCorr(); }
+function setCorrStatus(id, status){
+  const item = CORR.find(x=>x.id===id); if(item) item.status = status;
+  renderCorr();
+}
+function createCorr(){
+  const subject = document.getElementById("cmSubject").value || "(بدون موضوع)";
+  const to = document.getElementById("cmTo").value;
+  const id = "COR-" + (200 + CORR.length + 1);
+  CORR.unshift({id, subject, from:"مكتب المدير العام", to, status:"pending", date:"2026-09-15"});
+  CORR_TIMELINE[id] = [{h:"تم الإنشاء من قالب "+document.getElementById("cmTemplate").value, d:"2026-09-15 — الآن"}];
+  closeModal("corrModalBg");
+  document.getElementById("cmSubject").value=""; document.getElementById("cmBody").value="";
+  renderCorr();
+}
+
+function renderNotif(){
+  document.getElementById("page_notif").innerHTML = `
+    <div class="pagehead"><div><h2>${t("notif_title")}</h2><div class="desc">${t("notif_desc")}</div></div>
+      <button class="btn outline" onclick="markAllRead()">${t("markAllRead")}</button></div>
+    <div class="grid2">
+      <div class="card">${NOTIFS.map(n=>`<div class="notifitem ${n.unread?'unread':''}"><b>${n.title}</b><span class="t">${n.time}</span></div>`).join("")}</div>
+      <div class="card">
+        <div class="section-title">${t("prefs")}</div>
+        <div class="field"><label><input type="checkbox" checked style="width:auto;display:inline-block;margin-inline-end:8px;">${t("emailChannel")}</label></div>
+        <div class="field"><label><input type="checkbox" checked style="width:auto;display:inline-block;margin-inline-end:8px;">${t("inappChannel")}</label></div>
+        <div class="field"><label><input type="checkbox" checked style="width:auto;display:inline-block;margin-inline-end:8px;">${t("reminder24")}</label></div>
+        <div class="field"><label><input type="checkbox" checked style="width:auto;display:inline-block;margin-inline-end:8px;">${t("reminder3")}</label></div>
+      </div>
+    </div>`;
+}
+function markAllRead(){ NOTIFS.forEach(n=>n.unread=false); renderNotif(); renderNotifBell(); }
+function renderNotifBell(){
+  const unread = NOTIFS.filter(n=>n.unread).length;
+  document.getElementById("notifDot").style.display = unread>0 ? "block":"none";
+  document.getElementById("notifList").innerHTML = NOTIFS.slice(0,5).map(n=>`<div class="notifitem ${n.unread?'unread':''}"><b>${n.title}</b><span class="t">${n.time}</span></div>`).join("");
+}
+
+function renderArchive(){
+  document.getElementById("page_archive").innerHTML = `
+    <div class="pagehead"><div><h2>${t("archive_title")}</h2><div class="desc">${t("archive_desc")}</div></div></div>
+    <div class="searchbox"><input id="archQ" placeholder="${t('searchPh')}" oninput="runArchiveSearch()"><button class="btn" onclick="runArchiveSearch()">${t('search_go')}</button></div>
+    <div class="toolbar">
+      <select id="archDept" onchange="runArchiveSearch()"><option value="">${t('filterByDept')}</option>${DEPTS.map(d=>`<option>${d}</option>`).join("")}</select>
+      <input type="date" id="archDate" onchange="runArchiveSearch()">
+    </div>
+    <div id="archResults"></div>`;
+  runArchiveSearch();
+}
+function runArchiveSearch(){
+  const q = (document.getElementById("archQ")?.value||"").toLowerCase();
+  const dept = document.getElementById("archDept")?.value || "";
+  const tR = TASKS.filter(x=>(!q||x.title.toLowerCase().includes(q))&&(!dept||x.dept===dept));
+  const cR = CORR.filter(x=>(!q||x.subject.toLowerCase().includes(q))&&(!dept||x.from===dept||x.to===dept));
+  document.getElementById("archResults").innerHTML = `
+    <div class="rescat"><h4>${t("nav_tasks")} (${tR.length})</h4><div class="reslist">${tR.map(x=>`<div class="resitem"><span>${x.title}</span><span class="badge ${STATUS_BADGE[x.status]}">${t(STATUS_KEY[x.status])}</span></div>`).join("")||'<div class="resitem">—</div>'}</div></div>
+    <div class="rescat"><h4>${t("nav_corr")} (${cR.length})</h4><div class="reslist">${cR.map(x=>`<div class="resitem"><span>${x.subject}</span><span class="badge ${x.status}">${x.status}</span></div>`).join("")||'<div class="resitem">—</div>'}</div></div>`;
+}
+
+const TREND_DATASETS = {
+  "7d":[78,80,79,82,84,83,85],
+  "30d":[62,66,68,71,73,75,79,82],
+  "quarter":[48,53,58,61,65,68,72,75,79,82]
+};
+let repPeriod = "30d";
+let repDeptFilter = "";
+let repStatusFilter = "";
+
+function filteredReportTasks(){
+  return TASKS.filter(x=> (!repDeptFilter || x.dept===repDeptFilter) && (!repStatusFilter || x.status===repStatusFilter) );
+}
+function setRepDept(v){ repDeptFilter = v; renderReports(); }
+function setRepPeriod(v){ repPeriod = v; renderReports(); }
+function setRepStatus(s){ repStatusFilter = (repStatusFilter===s) ? "" : s; renderReports(); }
+
+function renderReports(){
+  const data = filteredReportTasks();
+  const total = data.length;
+  const doneCount = data.filter(x=>x.status==="done").length;
+  const rate = total ? Math.round((doneCount/total)*100) : 0;
+  const overdue = data.filter(x=>x.status!=="done"&&x.status!=="cancel"&&new Date(x.due)<new Date("2026-09-15")).length;
+
+  const deptCounts = DEPTS.map(d=> (repStatusFilter? TASKS.filter(x=>x.dept===d && x.status===repStatusFilter) : TASKS.filter(x=>x.dept===d)).length );
+  const maxDept = Math.max(1, ...deptCounts);
+
+  const statuses = ["new","progress","hold","done","cancel"];
+  const statusColors = {new:"#3730a3",progress:"#92400e",hold:"#4b5563",done:"#166534",cancel:"#991b1b"};
+  const baseForStatus = repDeptFilter ? TASKS.filter(x=>x.dept===repDeptFilter) : TASKS;
+  const statusCounts = statuses.map(s=>baseForStatus.filter(x=>x.status===s).length);
+  const statusTotal = statusCounts.reduce((a,b)=>a+b,0) || 1;
+  let acc = 0;
+  const gradientParts = statuses.map((s,i)=>{
+    const pct = statusCounts[i]/statusTotal*100;
+    const part = `${statusColors[s]} ${acc}% ${acc+pct}%`;
+    acc += pct;
+    return part;
+  });
+  const donutStyle = `background:conic-gradient(${gradientParts.join(",")});`;
+
+  const trend = TREND_DATASETS[repPeriod];
+  const w = 560, h = 110, pad = 8;
+  const stepX = (w - pad*2) / (trend.length-1);
+  const minV = Math.min(...trend), maxV = Math.max(...trend);
+  const scaleY = v => h - pad - ((v-minV)/((maxV-minV)||1))*(h-pad*2);
+  const points = trend.map((v,i)=>[pad+i*stepX, scaleY(v)]);
+  const polyline = points.map(p=>p.join(",")).join(" ");
+  const circles = points.map((p,i)=>`<circle class="trendpt" cx="${p[0]}" cy="${p[1]}" r="4" fill="#c9a227" title="${trend[i]}%"></circle>`).join("");
+
+  document.getElementById("page_reports").innerHTML = `
+    <div class="pagehead"><div><h2>${t("reports_title")}</h2><div class="desc">${t("reports_desc")}</div></div>
+      <div><button class="btn outline sm" onclick="alert('${t('exportPdf')}')">${t("exportPdf")}</button> <button class="btn outline sm" onclick="alert('${t('exportExcel')}')">${t("exportExcel")}</button></div></div>
+    <div class="repfilters">
+      <select onchange="setRepDept(this.value)">
+        <option value="" ${!repDeptFilter?"selected":""}>${t('filterByDept')}</option>
+        ${DEPTS.map(d=>`<option ${repDeptFilter===d?"selected":""}>${d}</option>`).join("")}
+      </select>
+      <select onchange="setRepPeriod(this.value)">
+        <option value="7d" ${repPeriod==="7d"?"selected":""}>7 ${currentLang==='ar'?'أيام الماضية':'days'}</option>
+        <option value="30d" ${repPeriod==="30d"?"selected":""}>30 ${currentLang==='ar'?'يوم الماضية':'days'}</option>
+        <option value="quarter" ${repPeriod==="quarter"?"selected":""}>${currentLang==='ar'?'هذا الربع':'This quarter'}</option>
+      </select>
+    </div>
+    <div class="cards">
+      <div class="card kpi"><div class="lbl">${t("kpi_open")}</div><div class="num">${total-doneCount-data.filter(x=>x.status==='cancel').length}</div></div>
+      <div class="card kpi"><div class="lbl">${t("kpi_overdue")}</div><div class="num" style="color:var(--danger)">${overdue}</div></div>
+      <div class="card kpi"><div class="lbl">${t("kpi_rate")}</div><div class="num" style="color:var(--ok)">${rate}%</div></div>
+      <div class="card kpi"><div class="lbl">${t("avgCompletion")}</div><div class="num">3.4 <span style="font-size:13px;">${t('days')}</span></div></div>
+    </div>
+    <div class="charts-row">
+      <div class="card">
+        <div class="section-title">${t("tasksByDept")}</div>
+        <div class="svgbar-wrap">${DEPTS.map((d,i)=>`
+          <div class="svgbar-col">
+            <div class="svgbar" style="height:${(deptCounts[i]/maxDept*140)||2}px;background:${repDeptFilter===d?'var(--gold)':'var(--navy2)'}" onclick="setRepDept('${d}')">
+              <span class="val">${deptCounts[i]}</span>
+            </div>
+            <div class="svgbar-lbl">${d}</div>
+          </div>`).join("")}
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title">${t("tasksByStatus")}</div>
+        <div class="donutwrap">
+          <div class="donut" style="${donutStyle}"></div>
+          <div class="donutlegend">${statuses.map((s,i)=>`
+            <div class="legrow ${repStatusFilter===s?'selected':''}" onclick="setRepStatus('${s}')">
+              <span class="legdot" style="background:${statusColors[s]}"></span> ${t(STATUS_KEY[s])} — <b>${statusCounts[i]}</b>
+            </div>`).join("")}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="section-title">${t("completionTrend")}</div>
+      <svg class="trendsvg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+        <polyline points="${polyline}" fill="none" stroke="#c9a227" stroke-width="2.5"/>
+        ${circles}
+      </svg>
+    </div>
+    ${repStatusFilter || repDeptFilter ? `
+    <div class="card drilldown">
+      <div class="section-title">${t("results")} (${data.length})</div>
+      <table><thead><tr><th>${t("col_title")}</th><th>${t("col_dept")}</th><th>${t("col_status")}</th><th>${t("col_due")}</th></tr></thead>
+      <tbody>${data.map(x=>`<tr><td>${x.title}</td><td>${x.dept}</td><td><span class="badge ${STATUS_BADGE[x.status]}">${t(STATUS_KEY[x.status])}</span></td><td>${x.due}</td></tr>`).join("")||`<tr><td colspan="4">—</td></tr>`}</tbody></table>
+    </div>` : ""}
+  `;
+}
+
+function renderAgenda(){
+  document.getElementById("page_agenda").innerHTML = `
+    <div class="pagehead"><div><h2>${t("agenda_title")}</h2><div class="desc">${t("agenda_desc")}</div></div></div>
+    <div class="card">${AGENDA.map((e,i)=>`
+      <div class="agenda-item">
+        <div class="agenda-time">${e.time}</div>
+        <div class="agenda-body">${e.title}<br><span class="badge ${e.status==='confirmed'?'done':'pending'}">${e.status==='confirmed'?t('approve'):t('st_new')}</span></div>
+        <div class="agenda-actions">
+          ${e.status!=='confirmed'?`<button class="btn sm ok" onclick="agendaAction(${i},'confirmed')">${t('confirm')}</button>`:""}
+          <button class="btn sm outline" onclick="editAgendaTime(${i})">${t('edit')}</button>
+          <button class="btn sm danger" onclick="agendaAction(${i},'cancelled')">${t('cancelEvent')}</button>
+        </div>
+      </div>`).join("")}</div>`;
+}
+function agendaAction(i, status){ AGENDA[i].status = status; if(status==='cancelled'){ AGENDA.splice(i,1);} renderAgenda(); }
+function editAgendaTime(i){
+  const item = AGENDA[i]; if(!item) return;
+  const newTime = prompt(currentLang==='ar' ? "عدّل وقت الحدث (HH:MM):" : "Edit event time (HH:MM):", item.time);
+  if(newTime){ item.time = newTime; renderAgenda(); }
+}
+
+let adminTab = "users";
+function renderAdmin(){
+  document.getElementById("page_admin").innerHTML = `
+    <div class="pagehead"><div><h2>${t("admin_title")}</h2><div class="desc">${t("admin_desc")}</div></div></div>
+    <div class="tabs2">
+      <button class="${adminTab==='users'?'active':''}" onclick="adminTab='users';renderAdmin()">${t("tab_users")}</button>
+      <button class="${adminTab==='roles'?'active':''}" onclick="adminTab='roles';renderAdmin()">${t("tab_roles")}</button>
+      <button class="${adminTab==='templates'?'active':''}" onclick="adminTab='templates';renderAdmin()">${t("tab_templates")}</button>
+      <button class="${adminTab==='audit'?'active':''}" onclick="adminTab='audit';renderAdmin()">${t("tab_audit")}</button>
+    </div>
+    <div id="adminTabBody"></div>`;
+  const body = document.getElementById("adminTabBody");
+  if(adminTab==="users"){
+    body.innerHTML = `<div style="margin-bottom:10px;text-align:end;"><button class="btn gold sm" onclick="openModal('userModalBg')">${t('addUser')}</button></div>
+      <table><thead><tr><th>${t('col_name')}</th><th>${t('col_email')}</th><th>${t('col_role')}</th><th>${t('dept')}</th><th>${t('col_active')}</th></tr></thead>
+      <tbody>${USERS.map(u=>`<tr><td>${u.name}</td><td>${u.email}</td><td>${t(ROLES[u.role].labelKey)}</td><td>${u.dept}</td><td>${u.active?'✅':'—'}</td></tr>`).join("")}</tbody></table>`;
+  } else if(adminTab==="roles"){
+    const modules = ["nav_home","nav_tasks","nav_corr","nav_notif","nav_archive","nav_reports","nav_agenda","nav_admin"];
+    body.innerHTML = `<table class="rbacmatrix"><thead><tr><th>${t('module')}</th><th>${t('perm_dg')}</th><th>${t('perm_mgr')}</th><th>${t('perm_emp')}</th><th>${t('perm_admin')}</th></tr></thead>
+      <tbody>${modules.map(m=>{
+        const id = m.replace("nav_","");
+        return `<tr><td>${t(m)}</td>${["dg","mgr","emp","admin"].map(r=>`<td class="${ROLES[r].nav.includes(id)?'yes':'no'}">${ROLES[r].nav.includes(id)?'✔':'—'}</td>`).join("")}</tr>`;
+      }).join("")}</tbody></table>`;
+  } else if(adminTab==="templates"){
+    body.innerHTML = `<table><thead><tr><th>${t('template')}</th></tr></thead><tbody>${TEMPLATES.map(x=>`<tr><td>${x}</td></tr>`).join("")}</tbody></table>`;
+  } else {
+    body.innerHTML = `<table><thead><tr><th>${t('col_name')}</th><th>${t('col_action')}</th><th>${t('col_time')}</th></tr></thead>
+      <tbody>${AUDIT.map(a=>`<tr><td>${a.user}</td><td>${a.action}</td><td>${a.time}</td></tr>`).join("")}</tbody></table>`;
+  }
+}
+
+function renderPage(page){
+  populateAssigneeSelect();
+  if(page==="home") renderHome();
+  else if(page==="tasks") renderTasks();
+  else if(page==="corr") renderCorr();
+  else if(page==="notif") renderNotif();
+  else if(page==="archive") renderArchive();
+  else if(page==="reports") renderReports();
+  else if(page==="agenda") renderAgenda();
+  else if(page==="admin") renderAdmin();
+}
+function renderAll(){ buildRoleSelect(); buildNav(); document.getElementById("roleLabel").textContent = t(ROLES[currentRole].labelKey); renderNotifBell(); renderPage(currentPage); }
+
+/* ============ Boot ============ */
+function buildPageContainers(){
+  const c = document.getElementById("content");
+  let html = "";
+  ["home","tasks","corr","notif","archive","reports","agenda","admin"].forEach(p=>{
+    html += `<div class="page${p===currentPage?' active':''}" id="page_${p}"></div>`;
+  });
+  c.innerHTML = html;
+}
+window.addEventListener("DOMContentLoaded", ()=>{
+  buildPageContainers();
+  applyI18n();
+  buildRoleSelect();
+  buildNav();
+  document.getElementById("roleLabel").textContent = t(ROLES[currentRole].labelKey);
+  document.getElementById("pageTitle").textContent = t(PAGE_TITLE_KEY[currentPage]);
+  renderNotifBell();
+  populateAssigneeSelect();
+  renderPage(currentPage);
+});
+</script>
+</body>
+</html>
